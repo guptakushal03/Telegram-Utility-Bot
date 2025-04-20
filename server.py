@@ -43,7 +43,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Welcome to DailyTasker - A project by KG\n"
         "Use the following commands:\n"
         "/joke - Get a random joke\n"
-        "/quote - Get a random quote daily at 10:15 am\n"
+        "/quote - Get a random quote daily\n"
         "/note - A note-taking functionality\n"
         "/summary - Summarize a PDF Document"
     )
@@ -294,7 +294,7 @@ async def quote(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if command is None:
         await update.message.reply_text(
             "Welcome to the Daily Quote Service!\n\n"
-            "This is a subscription-based service that sends you an inspiring quote every day.\n\n"
+            "This is a subscription-based service that sends you an inspiring quote every day at 10:15 am.\n\n"
             "You can manage your subscription using the following commands:\n"
             "/quote subscribe - Subscribe to daily quotes\n"
             "/quote unsubscribe - Unsubscribe from daily quotes\n"
