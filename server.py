@@ -45,8 +45,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "/joke - Get a random joke\n"
         "/quote - Get a random quote daily at 10:15 am\n"
         "/note - A note-taking functionality\n"
-        "/summary - Summarize a PDF Document\n"
-        "Learn more in docs here: https://github.com/guptakushal03/Telegram-Utility-Bot#telegram-utility-bot"
+        "/summary - Summarize a PDF Document"
     )
 
 
