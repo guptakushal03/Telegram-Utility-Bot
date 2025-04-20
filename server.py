@@ -8,6 +8,7 @@ from telegram import Update, Document
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from apscheduler.schedulers.background import BackgroundScheduler
 import asyncio
+import aiohttp
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
@@ -15,6 +16,7 @@ import threading
 TOKEN = os.getenv("TOKEN")
 NOTES_FILE = "notes.json"
 SUBSCRIBED_USERS_FILE = "subscribed_users.json"
+API_URL = "https://fluxapi-fssj.onrender.com/"
 JOKE_API_URL = "https://fluxapi-fssj.onrender.com/joke"
 QUOTE_API_URL = "https://fluxapi-fssj.onrender.com/quote"
 
@@ -358,11 +360,30 @@ async def send_daily_quote(app: Application) -> None:
         for user_id in subscribed_users:
             await app.bot.send_message(user_id, "Oops! Something went wrong while fetching the quote.")
 
+# wake up the API
+async def wake_api(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = await update.message.reply_text("Waking up the API... This may take up to a minute.")
+    
+    async def ping_api():
+        try:
+            async with aiohttp.ClientSession() as session:
+                for _ in range(15):
+                    async with session.get(JOKE_API_URL) as response:
+                        if response.status == 200:
+                            await message.edit_text("API is now awake!")
+                            return
+                    await asyncio.sleep(5)
+            await message.edit_text("API did not wake up in time. Please try again later.")
+        except Exception as e:
+            await message.edit_text("Failed to ping the API. Please try again later.")
+
+    asyncio.create_task(ping_api())
 
 def main():
     app = Application.builder().token(TOKEN).build()
     
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("wake", wake_api))
     app.add_handler(CommandHandler("joke", joke))
     app.add_handler(CommandHandler("quote", quote))
     app.add_handler(CommandHandler("note", note_handler))
