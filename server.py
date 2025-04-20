@@ -342,7 +342,7 @@ async def send_daily_quote(app: Application) -> None:
         except requests.RequestException:
             pass
 
-        await asyncio.sleep(2.5)
+        await asyncio.sleep(120)
 
         response = requests.get(QUOTE_API_URL, timeout=5)
         if response.status_code == 200:
@@ -375,7 +375,7 @@ def main():
         lambda: asyncio.run(send_daily_quote(app)),
         trigger='cron',
         hour=10,
-        minute=15
+        minute=13
     )
     scheduler.start()
 
