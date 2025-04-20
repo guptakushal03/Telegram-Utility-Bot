@@ -10,7 +10,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import asyncio
 
 
-TOKEN = "7232987324:AAFRenWwxsEAE8Hgqz63R7j1Zlnkgh3Vozs"
+TOKEN = os.getenv("TOKEN")
 NOTES_FILE = "notes.json"
 SUBSCRIBED_USERS_FILE = "subscribed_users.json"
 JOKE_API_URL = "https://fluxapi-fssj.onrender.com/joke"
