@@ -335,8 +335,16 @@ async def quote(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def send_daily_quote(app: Application) -> None:
     subscribed_users = load_subscribed_users()
+
     try:
-        response = requests.get(QUOTE_API_URL)
+        try:
+            requests.get(QUOTE_API_URL, timeout=3)
+        except requests.RequestException:
+            pass
+
+        await asyncio.sleep(2.5)
+
+        response = requests.get(QUOTE_API_URL, timeout=5)
         if response.status_code == 200:
             quote_data = response.json()
             quote = quote_data.get("quote", "Stay motivated!")
@@ -347,6 +355,8 @@ async def send_daily_quote(app: Application) -> None:
                 await app.bot.send_message(user_id, "Couldn't fetch a quote today.")
     except Exception as e:
         logger.error(f"Error sending daily quote: {e}")
+        for user_id in subscribed_users:
+            await app.bot.send_message(user_id, "Oops! Something went wrong while fetching the quote.")
 
 
 def main():
