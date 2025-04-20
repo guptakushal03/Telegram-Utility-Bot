@@ -26,11 +26,13 @@ USER_WAITING_FOR_PDF = {}
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         "Bot is online!\n"
+        "Welcome to DailyTasker - A project by KG\n"
         "Use the following commands:\n"
         "/joke - Get a random joke\n"
         "/quote - Get a random quote daily at 10:15 am\n"
         "/note - A note-taking functionality\n"
-        "/summary - Summarize a PDF Document"
+        "/summary - Summarize a PDF Document\n"
+        "Learn more in docs here: https://github.com/guptakushal03/Telegram-Utility-Bot#telegram-utility-bot"
     )
 
 
