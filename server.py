@@ -9,6 +9,8 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from apscheduler.schedulers.background import BackgroundScheduler
 import asyncio
 
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
 
 TOKEN = os.getenv("TOKEN")
 NOTES_FILE = "notes.json"
@@ -16,6 +18,18 @@ SUBSCRIBED_USERS_FILE = "subscribed_users.json"
 JOKE_API_URL = "https://fluxapi-fssj.onrender.com/joke"
 QUOTE_API_URL = "https://fluxapi-fssj.onrender.com/quote"
 
+# Keeping Alive the app as Web Service
+class KeepAliveHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is running")
+
+def run_keep_alive_server():
+    server = HTTPServer(('0.0.0.0', 8080), KeepAliveHandler)
+    server.serve_forever()
+
+threading.Thread(target=run_keep_alive_server, daemon=True).start()
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
