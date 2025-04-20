@@ -44,6 +44,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Bot is online!\n"
         "Welcome to DailyTasker - A project by KG\n"
         "Use the following commands:\n"
+        "/wake - To wake up the API\n"
         "/joke - Get a random joke\n"
         "/quote - Get a random quote daily\n"
         "/note - A note-taking functionality\n"
