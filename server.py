@@ -52,7 +52,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # joke
 async def joke(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
-        response = requests.get(JOKE_API_URL)
+        try:
+            requests.get(JOKE_API_URL, timeout=3)
+        except requests.RequestException:
+            pass
+
+        await asyncio.sleep(2.5)
+
+        response = requests.get(JOKE_API_URL, timeout=5)
         if response.status_code == 200:
             joke_data = response.json()
             await update.message.reply_text(joke_data.get("joke", "No joke found."))
