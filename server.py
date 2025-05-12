@@ -6,6 +6,7 @@ import PyPDF2
 from io import BytesIO
 from telegram import Update, Document
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from pytz import timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 import asyncio
 import aiohttp
@@ -336,26 +337,42 @@ async def quote(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             "/quote status - Check your subscription status"
         )
 
+async def wake_api_for_request() -> bool:
+    try:
+        async with aiohttp.ClientSession() as session:
+            for _ in range(15):
+                try:
+                    async with session.get(QUOTE_API_URL) as response:
+                        if response.status == 200:
+                            return True
+                except Exception:
+                    pass
+                await asyncio.sleep(5)
+        return False
+    except Exception:
+        return False
+
 async def send_daily_quote(app: Application) -> None:
     subscribed_users = load_subscribed_users()
 
     try:
-        try:
-            requests.get(QUOTE_API_URL, timeout=3)
-        except requests.RequestException:
-            pass
+        is_awake = await wake_api_for_request()
 
-        await asyncio.sleep(120)
+        if not is_awake:
+            for user_id in subscribed_users:
+                await app.bot.send_message(user_id, "The quote service is currently unavailable. Please try again later.")
+            return
 
-        response = requests.get(QUOTE_API_URL, timeout=5)
-        if response.status_code == 200:
-            quote_data = response.json()
-            quote = quote_data.get("quote", "Stay motivated!")
-            for user_id in subscribed_users:
-                await app.bot.send_message(user_id, f"Good Morning!\n\nQuote of the Day:\n{quote}")
-        else:
-            for user_id in subscribed_users:
-                await app.bot.send_message(user_id, "Couldn't fetch a quote today.")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(QUOTE_API_URL) as response:
+                if response.status == 200:
+                    quote_data = await response.json()
+                    quote = quote_data.get("quote", "Stay motivated!")
+                    for user_id in subscribed_users:
+                        await app.bot.send_message(user_id, f"Good Morning!\n\nQuote of the Day:\n{quote}")
+                else:
+                    for user_id in subscribed_users:
+                        await app.bot.send_message(user_id, "Couldn't fetch a quote today.")
     except Exception as e:
         logger.error(f"Error sending daily quote: {e}")
         for user_id in subscribed_users:
@@ -392,12 +409,12 @@ def main():
     app.add_handler(CommandHandler("id", get_id))
     app.add_handler(MessageHandler(filters.Document.MimeType('application/pdf'), handle_pdf))
 
-    scheduler = BackgroundScheduler()
+    scheduler = BackgroundScheduler(timezone=timezone('Asia/Kolkata'))
     scheduler.add_job(
         lambda: asyncio.run(send_daily_quote(app)),
         trigger='cron',
-        hour=10,
-        minute=13
+        hour=11,
+        minute=45
     )
     scheduler.start()
 
