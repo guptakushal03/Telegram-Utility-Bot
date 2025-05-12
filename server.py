@@ -6,7 +6,6 @@ import PyPDF2
 from io import BytesIO
 from telegram import Update, Document
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from pytz import timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 import asyncio
 import aiohttp
@@ -409,12 +408,12 @@ def main():
     app.add_handler(CommandHandler("id", get_id))
     app.add_handler(MessageHandler(filters.Document.MimeType('application/pdf'), handle_pdf))
 
-    scheduler = BackgroundScheduler(timezone=timezone('Asia/Kolkata'))
+    scheduler = BackgroundScheduler()
     scheduler.add_job(
         lambda: asyncio.run(send_daily_quote(app)),
         trigger='cron',
-        hour=11,
-        minute=45
+        hour=06,
+        minute=15
     )
     scheduler.start()
 
