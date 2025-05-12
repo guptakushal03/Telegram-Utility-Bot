@@ -412,7 +412,7 @@ def main():
     scheduler.add_job(
         lambda: asyncio.run(send_daily_quote(app)),
         trigger='cron',
-        hour=06,
+        hour=6,
         minute=15
     )
     scheduler.start()
